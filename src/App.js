@@ -10,7 +10,6 @@ const App = () => {
   const [selectedTags, setSelectedTags] = useState([]);
   const [allTags, setAllTags] = useState([]);
   const [sortOption, setSortOption] = useState('stars'); // Add state for sort option
-  const [selectedRobotType, setSelectedRobotType] = useState('All');
 
   const backendUrl = "https://robot-search-backend.onrender.com";
 
@@ -25,7 +24,6 @@ const App = () => {
         source: selectedSource,
         tags: selectedTags.join(','),
         sort: sortOption,
-        robotType: selectedRobotType === 'All' ? '' : selectedRobotType,
       }).toString();
 
       const response = await fetch(`${backendUrl}/api/search?${params}`);
@@ -66,7 +64,7 @@ const App = () => {
     fetchAllTags();
     // Perform initial search.
     performSearch();
-  }, [selectedSource, selectedTags, sortOption, selectedRobotType]); // Add new dependencies
+  }, [selectedSource, selectedTags, sortOption]); // Remove dependency on selectedRobotType
 
   const handleSearchSubmit = (e) => {
     e.preventDefault();
@@ -82,18 +80,6 @@ const App = () => {
       }
     });
   };
-
-  const robotTypes = [
-    'All',
-    '人型机器人',
-    '移动机器人',
-    '机械臂',
-    '足式机器人',
-    '灵巧手',
-    '桌面机器人',
-    '宠物机器人',
-    '教育机器人'
-  ];
 
   return (
     <div className="bg-gray-100 min-h-screen font-sans text-gray-800 p-4 sm:p-8 flex flex-col items-center">
@@ -167,26 +153,6 @@ const App = () => {
               ))}
             </div>
           </div>
-        </div>
-
-        {/* Robot Type Filter */}
-        <div className="mb-8">
-            <h3 className="text-lg font-semibold mb-2 text-gray-800">按机器人类型筛选</h3>
-            <div className="flex flex-wrap gap-2">
-              {robotTypes.map(type => (
-                <button
-                  key={type}
-                  onClick={() => setSelectedRobotType(type)}
-                  className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
-                    selectedRobotType === type
-                      ? 'bg-blue-600 text-white shadow-md'
-                      : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                  }`}
-                >
-                  {type === 'All' ? '全部类型' : type}
-                </button>
-              ))}
-            </div>
         </div>
 
         {/* Display content */}
