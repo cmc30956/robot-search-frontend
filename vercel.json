@@ -1,10 +1,4 @@
 {
-  "build": {
-    "env": {
-      "REACT_APP_VERCEL_ENV": "production"
-    },
-    "outputDirectory": "build"
-  },
   "rewrites": [
     {
       "source": "/(.*)",
