@@ -10,7 +10,6 @@ const App = () => {
   const [selectedTags, setSelectedTags] = useState([]);
   const [allTags, setAllTags] = useState([]);
 
-  // 确保后端URL没有末尾的斜杠，因为Render的免费服务通常是这样。
   const backendUrl = "https://robot-search-backend.onrender.com";
 
   // The main function to perform the combined search via the backend.
@@ -19,14 +18,12 @@ const App = () => {
     setIsLoading(true);
 
     try {
-      // Construct the URL to your backend endpoint.
       const params = new URLSearchParams({
         query: query,
         source: selectedSource,
         tags: selectedTags.join(','),
       }).toString();
 
-      // 将URL拼接为：https://robot-search-backend.onrender.com/api/search?query=...
       const response = await fetch(`${backendUrl}/api/search?${params}`);
       
       if (!response.ok) {
@@ -38,36 +35,26 @@ const App = () => {
 
     } catch (err) {
       console.error("Search failed:", err);
-      setError("搜索失败，请检查后端服务是否已启动。");
+      setError("搜索失败，请检查后端服务是否已启动或API密钥是否有效。");
     } finally {
       setIsLoading(false);
     }
   };
 
   // Fetch all tags from the backend to populate the filter buttons.
-  // In a real app, you might have a separate endpoint for this.
   const fetchAllTags = async () => {
-    // This is a simplified way to get all unique tags.
-    // In a production app, you might have a dedicated API endpoint like /api/tags
-    const allProjects = [
-      ...[{ full_name: 'alphabot', topics: ['robotic-arm', 'C++', 'hardware'] }],
-      ...[{ modelId: 'RoboGPT', tags: ['NLP', 'AI', 'language-model'] }],
-      ...[{ full_name: 'ROS2', topics: ['ROS2', 'navigation', 'autonomous'] }],
-      ...[{ full_name: 'OpenCV-Bot', topics: ['computer-vision', 'Python', 'OpenCV'] }],
-      ...[{ modelId: 'DuoQuad', tags: ['reinforcement-learning', 'AI', 'quadcopter'] }],
-      ...[{ full_name: 'A-star-Rust', topics: ['pathfinding', 'Rust', 'algorithm'] }],
-      ...[{ full_name: 'Panda-Robotics', topics: ['robotic-arm', 'simulation', 'manipulation'] }],
-      ...[{ full_name: 'Robot-Locomotion', topics: ['locomotion', 'bipedal', 'control'] }],
-      ...[{ modelId: 'Mobile-Robotics', tags: ['navigation', 'SLAM', 'AI'] }],
-      ...[{ full_name: 'PyRobot', topics: ['robotic-arm', 'learning', 'Python'] }]
-    ];
-    
-    const tags = [...new Set([
-      ...allProjects.filter(p => p.topics).flatMap(p => p.topics),
-      ...allProjects.filter(p => p.tags).flatMap(p => p.tags)
-    ])].map(t => t.replace('-', ' ')).sort();
-    
-    setAllTags(tags);
+    try {
+      const allProjects = await fetch(`${backendUrl}/api/search`).then(res => res.json());
+
+      const tags = [...new Set(
+        allProjects.flatMap(p => p.tags)
+      )].map(t => t.replace('-', ' ')).sort();
+      
+      setAllTags(tags);
+    } catch (err) {
+      console.error("Failed to fetch tags:", err);
+      setError("无法获取标签，请重试。");
+    }
   };
 
   useEffect(() => {
@@ -194,7 +181,6 @@ const App = () => {
                     <p className="text-gray-700 mb-3">
                       {project.description}
                     </p>
-                    {/* 这个部分是修复的重点，确保标签列表在一个单独的父元素中 */}
                     <div className="flex flex-wrap gap-2">
                       {project.tags.map(tag => (
                         <span
