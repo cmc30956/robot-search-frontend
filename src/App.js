@@ -202,7 +202,7 @@ const App = () => {
                           {tag}
                         </span>
                     </div>
-                  </a>
+                  </div>
                 </div>
               ))
             ) : (
