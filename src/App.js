@@ -136,7 +136,7 @@ const App = () => {
           <div className="flex-grow">
             <h3 className="text-lg font-semibold mb-2 text-gray-800">按排序</h3>
             <div className="flex flex-wrap gap-2">
-              {['stars', 'growth'].map(option => (
+              {['stars', 'growth', 'growth_week', 'growth_month'].map(option => (
                 <button
                   key={option}
                   onClick={() => setSortOption(option)}
@@ -146,7 +146,9 @@ const App = () => {
                       : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
                   }`}
                 >
-                  {option === 'stars' ? '最多 Stars' : '增长最快'}
+                  {option === 'stars' ? '最多 Stars' : 
+                   option === 'growth' ? '增长最快' :
+                   option === 'growth_week' ? '最近一周增长最快' : '最近一月增长最快'}
                 </button>
               ))}
             </div>
