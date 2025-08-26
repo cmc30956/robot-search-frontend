@@ -10,9 +10,8 @@ const App = () => {
   const [selectedTags, setSelectedTags] = useState([]);
   const [allTags, setAllTags] = useState([]);
 
-  // IMPORTANT: Replace this URL with your actual backend URL after deployment.
-  // Example: "https://my-robotics-backend.onrender.com" or "https://my-robotics-backend.railway.app"
-  const backendUrl = "https://robot-search-backend.onrender.com/"; 
+  // 确保后端URL没有末尾的斜杠，因为Render的免费服务通常是这样。
+  const backendUrl = "https://robot-search-backend.onrender.com"; 
 
   // The main function to perform the combined search via the backend.
   const performSearch = async () => {
@@ -27,6 +26,7 @@ const App = () => {
         tags: selectedTags.join(','),
       }).toString();
 
+      // 将URL拼接为：https://robot-search-backend.onrender.com/api/search?query=...
       const response = await fetch(`${backendUrl}/api/search?${params}`);
       
       if (!response.ok) {
@@ -160,7 +160,6 @@ const App = () => {
                   {tag}
                 </button>
               ))}
-            </div>
           </div>
         </div>
 
@@ -202,7 +201,6 @@ const App = () => {
                         >
                           {tag}
                         </span>
-                      ))}
                     </div>
                   </a>
                 </div>
