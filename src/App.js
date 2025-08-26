@@ -11,7 +11,6 @@ const App = () => {
   const [allTags, setAllTags] = useState([]);
   const [sortOption, setSortOption] = useState('stars'); // Add state for sort option
   const [selectedRobotType, setSelectedRobotType] = useState('All');
-  const [selectedLevel, setSelectedLevel] = useState('All');
 
   const backendUrl = "https://robot-search-backend.onrender.com";
 
@@ -27,7 +26,6 @@ const App = () => {
         tags: selectedTags.join(','),
         sort: sortOption,
         robotType: selectedRobotType === 'All' ? '' : selectedRobotType,
-        level: selectedLevel === 'All' ? '' : selectedLevel,
       }).toString();
 
       const response = await fetch(`${backendUrl}/api/search?${params}`);
@@ -68,7 +66,7 @@ const App = () => {
     fetchAllTags();
     // Perform initial search.
     performSearch();
-  }, [selectedSource, selectedTags, sortOption, selectedRobotType, selectedLevel]); // Add new dependencies
+  }, [selectedSource, selectedTags, sortOption, selectedRobotType]); // Add new dependencies
 
   const handleSearchSubmit = (e) => {
     e.preventDefault();
@@ -87,26 +85,14 @@ const App = () => {
 
   const robotTypes = [
     'All',
-    'Humanoid',
-    'Mobile',
-    'Industrial',
-    'Drone',
-    'Service',
-    'Educational',
-    'Medical',
-  ];
-  
-  const robotLevels = [
-    { title: '全部层面', value: 'All' },
-    { title: '硬件', value: 'Hardware' },
-    { title: '软件', value: 'Software' },
-    { title: '人型机器人', value: '人型机器人' },
-    { title: '移动机器人', value: '移动机器人' },
-    { title: '机械臂', value: '机械臂' },
-    { title: '灵巧手', value: '灵巧手' },
-    { title: 'VLA模型', value: 'VLA模型' },
-    { title: 'RL模型', value: 'RL模型' },
-    { title: 'LLM模型', value: 'LLM模型' },
+    '人型机器人',
+    '移动机器人',
+    '机械臂',
+    '足式机器人',
+    '灵巧手',
+    '桌面机器人',
+    '宠物机器人',
+    '教育机器人'
   ];
 
   return (
@@ -198,26 +184,6 @@ const App = () => {
                   }`}
                 >
                   {type === 'All' ? '全部类型' : type}
-                </button>
-              ))}
-            </div>
-        </div>
-
-        {/* Robot Level Filter */}
-        <div className="mb-8">
-            <h3 className="text-lg font-semibold mb-2 text-gray-800">按软硬件层面筛选</h3>
-            <div className="flex flex-wrap gap-2">
-              {robotLevels.map(item => (
-                <button
-                  key={item.value}
-                  onClick={() => setSelectedLevel(item.value)}
-                  className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
-                    selectedLevel === item.value
-                      ? 'bg-blue-600 text-white shadow-md'
-                      : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                  }`}
-                >
-                  {item.title}
                 </button>
               ))}
             </div>
