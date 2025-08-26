@@ -12,7 +12,7 @@ const App = () => {
 
   // IMPORTANT: Replace this URL with your actual backend URL after deployment.
   // Example: "https://my-robotics-backend.onrender.com" or "https://my-robotics-backend.railway.app"
-  const backendUrl = "http://localhost:3000"; 
+  const backendUrl = "https://robot-search-backend.onrender.com/"; 
 
   // The main function to perform the combined search via the backend.
   const performSearch = async () => {
