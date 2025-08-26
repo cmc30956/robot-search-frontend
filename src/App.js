@@ -9,6 +9,7 @@ const App = () => {
   const [selectedSource, setSelectedSource] = useState('All');
   const [selectedTags, setSelectedTags] = useState([]);
   const [allTags, setAllTags] = useState([]);
+  const [sortOption, setSortOption] = useState('stars'); // Add state for sort option
 
   const backendUrl = "https://robot-search-backend.onrender.com";
 
@@ -22,6 +23,7 @@ const App = () => {
         query: query,
         source: selectedSource,
         tags: selectedTags.join(','),
+        sort: sortOption, // Pass the sort option to the backend
       }).toString();
 
       const response = await fetch(`${backendUrl}/api/search?${params}`);
@@ -62,7 +64,7 @@ const App = () => {
     fetchAllTags();
     // Perform initial search.
     performSearch();
-  }, [selectedSource, selectedTags]);
+  }, [selectedSource, selectedTags, sortOption]); // Add sortOption to dependencies
 
   const handleSearchSubmit = (e) => {
     e.preventDefault();
@@ -111,9 +113,9 @@ const App = () => {
           </div>
         </form>
 
-        {/* Filter controls */}
-        <div className="mb-8">
-          <div className="mb-4">
+        {/* Filter and Sort controls */}
+        <div className="mb-8 flex flex-col sm:flex-row sm:space-x-4">
+          <div className="mb-4 sm:mb-0">
             <h3 className="text-lg font-semibold mb-2 text-gray-800">按来源筛选</h3>
             <div className="flex flex-wrap gap-2">
               {['All', 'GitHub', 'Hugging Face'].map(source => (
@@ -131,20 +133,20 @@ const App = () => {
               ))}
             </div>
           </div>
-          <div>
-            <h3 className="text-lg font-semibold mb-2 text-gray-800">按标签筛选</h3>
+          <div className="flex-grow">
+            <h3 className="text-lg font-semibold mb-2 text-gray-800">按排序</h3>
             <div className="flex flex-wrap gap-2">
-              {allTags.map(tag => (
+              {['stars', 'growth'].map(option => (
                 <button
-                  key={tag}
-                  onClick={() => handleTagToggle(tag)}
+                  key={option}
+                  onClick={() => setSortOption(option)}
                   className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
-                    selectedTags.includes(tag)
+                    sortOption === option
                       ? 'bg-blue-600 text-white shadow-md'
                       : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
                   }`}
                 >
-                  {tag}
+                  {option === 'stars' ? '最多 Stars' : '增长最快'}
                 </button>
               ))}
             </div>
