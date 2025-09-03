@@ -10,6 +10,8 @@ const App = () => {
   const [selectedTags, setSelectedTags] = useState([]);
   const [allTags, setAllTags] = useState([]);
   const [sortOption, setSortOption] = useState('stars'); // Add state for sort option
+  const [isSmartSearchModalOpen, setIsSmartSearchModalOpen] = useState(false);
+  const [smartSearchDescription, setSmartSearchDescription] = useState('');
 
   const backendUrl = "https://robot-search-backend.onrender.com";
 
@@ -27,17 +29,51 @@ const App = () => {
       }).toString();
 
       const response = await fetch(`${backendUrl}/api/search?${params}`);
-      
+
       if (!response.ok) {
         throw new Error('Network response was not ok');
       }
-      
+
       const data = await response.json();
       setFilteredProjects(data);
 
     } catch (err) {
       console.error("Search failed:", err);
       setError("搜索失败，请检查后端服务是否已启动或API密钥是否有效。");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const performSmartSearch = async () => {
+    if (!smartSearchDescription) {
+      setError("描述不能为空。");
+      return;
+    }
+    setError(null);
+    setIsLoading(true);
+    setIsSmartSearchModalOpen(false); // Close the modal
+
+    try {
+      const response = await fetch(`${backendUrl}/api/smart-search`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ description: smartSearchDescription }),
+      });
+
+      if (!response.ok) {
+        throw new Error('智能搜索失败');
+      }
+
+      const data = await response.json();
+      setQuery(data.keywords); // Update the query box with generated keywords
+      setFilteredProjects(data.results);
+
+    } catch (err) {
+      console.error("Smart search failed:", err);
+      setError("智能搜索失败，请重试。");
     } finally {
       setIsLoading(false);
     }
@@ -51,7 +87,7 @@ const App = () => {
       const tags = [...new Set(
         allProjects.flatMap(p => p.tags)
       )].map(t => t.replace('-', ' ')).sort();
-      
+
       setAllTags(tags);
     } catch (err) {
       console.error("Failed to fetch tags:", err);
@@ -92,8 +128,8 @@ const App = () => {
         </p>
 
         {/* Search form */}
-        <form onSubmit={handleSearchSubmit} className="mb-8">
-          <div className="flex items-center space-x-2">
+        <div className="mb-4">
+          <form onSubmit={handleSearchSubmit} className="flex items-center space-x-2">
             <input
               type="text"
               value={query}
@@ -110,8 +146,16 @@ const App = () => {
             >
               {isLoading ? '搜索中...' : '搜索'}
             </button>
-          </div>
-        </form>
+            <button
+              type="button"
+              onClick={() => setIsSmartSearchModalOpen(true)}
+              className="px-6 py-3 rounded-lg font-semibold shadow-md transition-colors bg-purple-600 text-white hover:bg-purple-700"
+            >
+              智能搜索
+            </button>
+          </form>
+        </div>
+
 
         {/* Filter and Sort controls */}
         <div className="mb-8 flex flex-col sm:flex-row sm:space-x-4">
@@ -146,7 +190,7 @@ const App = () => {
                       : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
                   }`}
                 >
-                  {option === 'stars' ? '最多 Stars' : 
+                  {option === 'stars' ? '最多 Stars' :
                    option === 'growth' ? '增长最快' :
                    option === 'growth_week' ? '最近一周增长最快' : '最近一月增长最快'}
                 </button>
@@ -154,6 +198,42 @@ const App = () => {
             </div>
           </div>
         </div>
+
+        {/* Smart Search Modal */}
+        {isSmartSearchModalOpen && (
+          <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full flex items-center justify-center">
+            <div className="bg-white p-8 rounded-lg shadow-xl w-full max-w-md mx-auto">
+              <h3 className="text-xl font-bold mb-4 text-gray-900">智能搜索</h3>
+              <p className="text-gray-600 mb-4">
+                用自然语言描述你想要找的项目，例如：“一个用于机械臂路径规划的 Python 库”。
+              </p>
+              <textarea
+                className="w-full p-3 border border-gray-300 rounded-lg resize-none mb-4 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                rows="4"
+                value={smartSearchDescription}
+                onChange={(e) => setSmartSearchDescription(e.target.value)}
+                placeholder="请输入项目描述..."
+              ></textarea>
+              <div className="flex justify-end space-x-2">
+                <button
+                  onClick={() => setIsSmartSearchModalOpen(false)}
+                  className="px-4 py-2 rounded-lg font-semibold text-gray-700 bg-gray-200 hover:bg-gray-300 transition-colors"
+                >
+                  取消
+                </button>
+                <button
+                  onClick={performSmartSearch}
+                  disabled={isLoading}
+                  className={`px-4 py-2 rounded-lg font-semibold text-white transition-colors ${
+                    isLoading ? 'bg-purple-400 cursor-not-allowed' : 'bg-purple-600 hover:bg-purple-700'
+                  }`}
+                >
+                  {isLoading ? '搜索中...' : '开始搜索'}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Display content */}
         {error && (
